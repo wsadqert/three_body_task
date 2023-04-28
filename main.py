@@ -17,15 +17,18 @@ parameters_body = tuple(data['Body1'].keys())  # reading available parameters fr
 bodies: list[Body] = [Body(*[float(data[body_name][i]) for i in parameters_body]) for body_name in data.keys() if 'Body' in body_name]  # loading bodies' data from config, checking if section name contain string 'Body' and creating and adding new Body object to list
 
 n = len(bodies)  # number of bodies in simulation
-dt: float = float(data['General']['dt'])  # loading modeling step from config
+dt, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for key in data['General'].keys()]
 
 # --------CONFIGURING MATPLOTLIB--------
 
 # plt.style.use('dark_background') # noqa
 
 fig = plt.figure()
-# ax = plt.axes()
-ax = plt.axes(xlim=(-1000, 1000), ylim=(-1000, 1000))
+ax: mpl.axes.Axes = plt.axes()
+
+ax.set_xlim((limx_min, limx_max))
+ax.set_ylim((limy_min, limy_max))
+
 lines: list[mpl.lines.Line2D] = [ax.plot([], [])[0] for _ in range(n)]  # initializing list of lines showing paths of bodies
 markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}")[0] for i in range(n)]  # initializing list of marker showing current position of bodies
 
@@ -83,7 +86,7 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 	return lines+markers
 
 
-anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=5, blit=True, cache_frame_data=False)
+anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.01, blit=True, cache_frame_data=False)
 ax.legend(loc="upper right")
 
 plt.show()
