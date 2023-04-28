@@ -21,7 +21,7 @@ dt, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for ke
 
 # --------CONFIGURING MATPLOTLIB--------
 
-# plt.style.use('dark_background') # noqa
+plt.style.use('dark_background') # noqa
 
 fig = plt.figure()
 ax: mpl.axes.Axes = plt.axes()
@@ -55,8 +55,8 @@ def acceleration(body_current: int) -> np.ndarray:
 
 	rs: list[float] = [np.linalg.norm(coords - i) for i in coords_other]
 
-	ax_sum = -sum([G * bodies_other[i].mass * (body.x - bodies_other[i].x) / rs[i] ** 3 for i in range(len(ns))])
-	ay_sum = -sum([G * bodies_other[i].mass * (body.y - bodies_other[i].y) / rs[i] ** 3 for i in range(len(ns))])
+	ax_sum = -G * sum([bodies_other[i].mass * (body.x - bodies_other[i].x) / rs[i] ** 3 for i in range(n-1)])
+	ay_sum = -G * sum([bodies_other[i].mass * (body.y - bodies_other[i].y) / rs[i] ** 3 for i in range(n-1)])
 
 	return np.array((ax_sum, ay_sum))
 
