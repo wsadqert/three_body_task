@@ -3,6 +3,7 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib import rcParams
 import numpy as np
 
 import configparser
@@ -34,11 +35,13 @@ colors_using: list[str] = [next(color_cycle) for _ in range(n)]
 fig = plt.figure()
 ax: mpl.axes.Axes = plt.axes()
 
+ax.grid(True, ls='dashed', color='#333333')
+
 ax.set_xlim((limx_min, limx_max))
 ax.set_ylim((limy_min, limy_max))
 
-lines: list[mpl.lines.Line2D] = [ax.plot([], [])[0] for _ in range(n)]  # initializing list of lines showing paths of bodies
-markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}")[0] for i in range(n)]  # initializing list of marker showing current position of bodies
+lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
+markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
 
 lines_data_x: list[list[float]] = [[] for _ in range(n)]
 lines_data_y: list[list[float]] = [[] for _ in range(n)]
