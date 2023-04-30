@@ -77,6 +77,10 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 	t += dt
 	for i in range(n):
 		body = bodies[i]
+
+		if body.fixed:
+			continue
+
 		a = acceleration(i)
 
 		body.x += body.vx * dt
@@ -93,7 +97,7 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 		markers[i].set_xdata((body.x,))
 		markers[i].set_ydata((body.y,))
 
-	return lines+markers
+	return lines + markers
 
 
 anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.01, blit=True, cache_frame_data=False)
