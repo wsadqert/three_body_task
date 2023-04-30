@@ -1,27 +1,35 @@
+import inspect
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+
 import configparser
 from rich.traceback import install
 
 from modeling.body import Body
 from constants import *
+from modeling.data_reading import read_data
 
 install(show_locals=True, width=300)  # setting `rich.traceback` up  # noqa
 
 data = configparser.ConfigParser()
 data.read('./config.ini')  # loading config file
 
-parameters_body = tuple(data['Body1'].keys())  # reading available parameters from section 'Body1'
-bodies: list[Body] = [Body(*[float(data[body_name][i]) for i in parameters_body]) for body_name in data.keys() if 'Body' in body_name]  # loading bodies' data from config, checking if section name contain string 'Body' and creating and adding new Body object to list
+parameters_body: list[str] = inspect.getfullargspec(Body).args[1:]
+bodies: list[Body] = read_data(data, parameters_body)
 
 n = len(bodies)  # number of bodies in simulation
 dt, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for key in data['General'].keys()]
 
 # --------CONFIGURING MATPLOTLIB--------
 
-plt.style.use('dark_background') # noqa
+plt.style.use('dark_background')  # noqa
+
+color_cycle = rcParams['axes.prop_cycle']()
+colors_using: list[str] = [next(color_cycle) for _ in range(n)]
+
 
 fig = plt.figure()
 ax: mpl.axes.Axes = plt.axes()
@@ -37,7 +45,7 @@ lines_data_y: list[list[float]] = [[] for _ in range(n)]
 
 
 def initialize():
-	return lines+markers
+	return lines + markers
 
 
 # ----------BEGIN CALCULATIONS----------
@@ -54,9 +62,8 @@ def acceleration(body_current: int) -> np.ndarray:
 	coords_other = [np.array((b.x, b.y)) for b in bodies_other]
 
 	rs: list[float] = [np.linalg.norm(coords - i) for i in coords_other]
-
-	ax_sum = -G * sum([bodies_other[i].mass * (body.x - bodies_other[i].x) / rs[i] ** 3 for i in range(n-1)])
-	ay_sum = -G * sum([bodies_other[i].mass * (body.y - bodies_other[i].y) / rs[i] ** 3 for i in range(n-1)])
+	ax_sum = -G * sum([bodies_other[i].mass * (body.x - bodies_other[i].x) / rs[i] ** 3 for i in range(n - 1)])
+	ay_sum = -G * sum([bodies_other[i].mass * (body.y - bodies_other[i].y) / rs[i] ** 3 for i in range(n - 1)])
 
 	return np.array((ax_sum, ay_sum))
 
