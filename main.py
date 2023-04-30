@@ -1,4 +1,5 @@
 import inspect
+import time
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -100,7 +101,13 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 	return lines + markers
 
 
-anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.01, blit=True, cache_frame_data=False)
+anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.0001, blit=True, cache_frame_data=False)
 ax.legend(loc="upper right")
 
-plt.show()
+t0 = time.time()
+try:
+	plt.show()
+except KeyboardInterrupt:
+	t1 = time.time()
+	print(t // dt / (t1-t0), 'fps')  # noqa
+	print(round(t / (t1-t0)), 'x time speed', sep='')
