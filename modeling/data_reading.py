@@ -33,6 +33,5 @@ def read_data(data: ConfigParser, parameters_body: list[str]) -> list[Body]:
 			params.append(float_value)
 
 		bodies.append(Body(*params))
-		print(bodies[-1])
 
 	return bodies

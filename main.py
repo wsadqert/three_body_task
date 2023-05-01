@@ -1,9 +1,11 @@
 import inspect
+import os
 import time
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from astropy.time import TimeDelta
 from matplotlib import rcParams
 import numpy as np
 
@@ -54,7 +56,6 @@ def initialize():
 
 # ----------BEGIN CALCULATIONS----------
 
-
 # функция для расчёта ускорения
 def acceleration(body_current: int) -> np.ndarray:
 	ns = tuple(set(range(n)) - {body_current})
@@ -73,7 +74,7 @@ def acceleration(body_current: int) -> np.ndarray:
 
 
 def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
-	global t
+	global t, t_last, t0  # noqa
 
 	t += dt
 	for i in range(n):
@@ -98,16 +99,30 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 		markers[i].set_xdata((body.x,))
 		markers[i].set_ydata((body.y,))
 
+	if frame == 0:
+		t0 = time.time()
+
+	elif frame % output_rate == 0:
+		t1 = time.time()
+
+		os.system('cls')
+
+		print('t =', TimeDelta(t, format='sec').datetime)  # noqa
+		print('fps =', round(output_rate / (t1 - t0), 2))  # noqa
+		print('tps =', TimeDelta((t - t_last) / (t1 - t0), format='sec').datetime)  # noqa
+		speed = round((t - t_last) / (t1 - t0))
+		print('speed multiplier =', format(speed, ',').replace(',', ' '))
+
+		t_last = t
+		t0 = time.time()
+
 	return lines + markers
 
 
 anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.0001, blit=True, cache_frame_data=False)
 ax.legend(loc="upper right")
 
-t0 = time.time()
 try:
 	plt.show()
 except KeyboardInterrupt:
-	t1 = time.time()
-	print(t // dt / (t1-t0), 'fps')  # noqa
-	print(round(t / (t1-t0)), 'x time speed', sep='')
+	print('Interrupted')
