@@ -43,15 +43,15 @@ ax.grid(True, ls='dashed', color='#333333')
 ax.set_xlim((limx_min, limx_max))
 ax.set_ylim((limy_min, limy_max))
 
-lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
+# lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
 markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
 
-lines_data_x: list[list[float]] = [[] for _ in range(n)]
-lines_data_y: list[list[float]] = [[] for _ in range(n)]
+# lines_data_x: list[list[float]] = [[] for _ in range(n)]
+# lines_data_y: list[list[float]] = [[] for _ in range(n)]
 
 
 def initialize():
-	return lines + markers
+	return markers  # + lines
 
 
 # ----------BEGIN CALCULATIONS----------
@@ -91,11 +91,11 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 		body.vx += a[0] * dt
 		body.vy += a[1] * dt
 
-		lines_data_x[i].append(body.x)
-		lines_data_y[i].append(body.y)
+		# lines_data_x[i].append(body.x)
+		# lines_data_y[i].append(body.y)
 
-		lines[i].set_xdata(lines_data_x[i])
-		lines[i].set_ydata(lines_data_y[i])
+		# lines[i].set_xdata(lines_data_x[i])
+		# lines[i].set_ydata(lines_data_y[i])
 		markers[i].set_xdata((body.x,))
 		markers[i].set_ydata((body.y,))
 
@@ -116,7 +116,7 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 		t_last = t
 		t0 = time.time()
 
-	return lines + markers
+	return markers  # + lines
 
 
 anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.0001, blit=True, cache_frame_data=False)
