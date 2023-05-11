@@ -13,24 +13,25 @@ def read_data(data: ConfigParser, parameters_body: list[str]) -> list[Body]:
 
 		body_dict = data[body_name]  # dict name-value for each body
 		for i in parameters_body:  # Getting the parameters
-			try:  # checking availability of all parameters
-				value: str = body_dict[i]
-			except KeyError:
-				if i == 'fixed':
-					continue
-
-				raise KeyError(f"no parameter `{i}` found in section `{body_name}`")
-
-			try:  # checking possibility of converting values to floats
-				float_value = float(value)
-			except ValueError:
+			try:
+				"""
+				Checking:
+				- availability of all parameters;
+				- possibility of converting values to floats.
+				"""
+				value = body_dict.get(i, None)
 				if i != 'fixed':
-					raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be convertable to float")
+					value = float(value)
 
-			if np.isnan((float_value, )) or np.isinf((float_value, )):  # noqa  # checking for not-nan/inf
+			except KeyError:
+				raise KeyError(f"no parameter `{i}` found in section `{body_name}`")
+			except ValueError:
+				raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be convertible to float")
+
+			if i != 'fixed' and (np.isnan((value, )) or np.isinf((value, ))):  # checking for not-nan/inf
 				raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be not `inf`, or `nan`")
 
-			params.append(float_value)
+			params.append(value)
 
 		bodies.append(Body(*params))
 

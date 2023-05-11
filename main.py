@@ -5,18 +5,18 @@ import time
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from astropy.time import TimeDelta
 from matplotlib import rcParams
 import numpy as np
+from astropy.time import TimeDelta
 
 import configparser
 from rich.traceback import install
 
 from modeling.body import Body
+from modeling.read_data import read_data
 from constants import *
-from modeling.data_reading import read_data
 
-install(show_locals=True, width=300)  # setting `rich.traceback` up  # noqa
+install(show_locals=True, width=300)  # installing `rich.traceback`
 
 data = configparser.ConfigParser()
 data.read('./config.ini')  # loading config file
@@ -32,10 +32,10 @@ dt, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for ke
 plt.style.use('dark_background')  # noqa
 
 color_cycle = rcParams['axes.prop_cycle']()
-colors_using: list[str] = [next(color_cycle) for _ in range(n)]
+colors_using: list[str] = [next(color_cycle)['color'] for _ in range(n)]
 
 
-fig = plt.figure()
+fig = plt.figure(figsize=(8, 8))
 ax: mpl.axes.Axes = plt.axes()
 
 ax.grid(True, ls='dashed', color='#333333')
@@ -44,14 +44,10 @@ ax.set_xlim((limx_min, limx_max))
 ax.set_ylim((limy_min, limy_max))
 
 # lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
-markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
+markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
 
 # lines_data_x: list[list[float]] = [[] for _ in range(n)]
 # lines_data_y: list[list[float]] = [[] for _ in range(n)]
-
-
-def initialize():
-	return markers  # + lines
 
 
 # ----------BEGIN CALCULATIONS----------
@@ -119,7 +115,7 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 	return markers  # + lines
 
 
-anim = animation.FuncAnimation(fig, animate, init_func=initialize, interval=0.0001, blit=True, cache_frame_data=False)
+anim = animation.FuncAnimation(fig, animate, interval=0.0001, blit=True, cache_frame_data=False)
 ax.legend(loc="upper right")
 
 try:
