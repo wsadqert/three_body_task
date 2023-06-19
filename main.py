@@ -25,7 +25,7 @@ parameters_body: list[str] = inspect.getfullargspec(Body).args[1:]
 bodies: list[Body] = read_data(data, parameters_body)
 
 n = len(bodies)  # number of bodies in simulation
-dt, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for key in data['General'].keys()]
+dt, show_lines, limx_min, limx_max, limy_min, limy_max = [float(data['General'][key]) for key in data['General'].keys()]
 
 # --------CONFIGURING MATPLOTLIB--------
 
@@ -43,11 +43,12 @@ ax.grid(True, ls='dashed', color='#333333')
 ax.set_xlim((limx_min, limx_max))
 ax.set_ylim((limy_min, limy_max))
 
-# lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
-markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
+if show_lines:
+	lines: list[mpl.lines.Line2D] = [ax.plot([], [], color=colors_using[i]['color'])[0] for i in range(n)]  # initializing list of lines showing paths of bodies  # noqa
+	lines_data_x: list[list[float]] = [[] for _ in range(n)]
+	lines_data_y: list[list[float]] = [[] for _ in range(n)]
 
-# lines_data_x: list[list[float]] = [[] for _ in range(n)]
-# lines_data_y: list[list[float]] = [[] for _ in range(n)]
+markers: list[mpl.lines.Line2D] = [ax.plot([], [], 'o', markersize=10, label=f"Body {i}", color=colors_using[i])[0] for i in range(n)]  # initializing list of marker showing current position of bodies  # noqa
 
 
 # ----------BEGIN CALCULATIONS----------
@@ -87,11 +88,13 @@ def animate(frame: int) -> list[mpl.lines.Line2D]:  # noqa
 		body.vx += a[0] * dt
 		body.vy += a[1] * dt
 
-		# lines_data_x[i].append(body.x)
-		# lines_data_y[i].append(body.y)
+		if show_lines:
+			lines_data_x[i].append(body.x)
+			lines_data_y[i].append(body.y)
 
-		# lines[i].set_xdata(lines_data_x[i])
-		# lines[i].set_ydata(lines_data_y[i])
+			lines[i].set_xdata(lines_data_x[i])
+			lines[i].set_ydata(lines_data_y[i])
+
 		markers[i].set_xdata((body.x,))
 		markers[i].set_ydata((body.y,))
 
