@@ -1,25 +1,26 @@
 from configparser import ConfigParser
 from modeling.body import Body
-import numpy as np
+from math import isnan, isinf
 
 
-def read_data(data: ConfigParser, parameters_body: list[str]) -> list[Body]:
+def read_data(data: ConfigParser | dict[str, dict[str, str]], parameters_body: list[str]) -> list[Body]:
 	bodies: list[Body] = []
+
 	for body_name in data.keys():
 		if 'Body' not in body_name:  # Do not read the 'General' section
 			continue
 
 		params: list[float] = []
+		body_dict = data[body_name]  # dict param-value for each body
 
-		body_dict = data[body_name]  # dict name-value for each body
 		for i in parameters_body:  # Getting the parameters
+			value = body_dict.get(i, None)
 			try:
 				"""
 				Checking:
 				- availability of all parameters;
 				- possibility of converting values to floats.
 				"""
-				value = body_dict.get(i, None)
 				if i != 'fixed':
 					value = float(value)
 
@@ -28,8 +29,8 @@ def read_data(data: ConfigParser, parameters_body: list[str]) -> list[Body]:
 			except ValueError:
 				raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be convertible to float")
 
-			if i != 'fixed' and (np.isnan((value, )) or np.isinf((value, ))):  # checking for not-nan/inf
-				raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be not `inf`, or `nan`")
+			if i != 'fixed' and (isnan(value) or isinf(value)):  # checking for not-nan/inf
+				raise ValueError(f"parameter `{i} = {value}` in section `{body_name}` must be not `±inf`, or `nan`")
 
 			params.append(value)
 
