@@ -1,10 +1,16 @@
-from configparser import ConfigParser
-from modeling.body import Body
+import configparser
 from math import isnan, isinf
 
+from constants import *
+from modeling.body import Body
 
-def read_data(data: ConfigParser | dict[str, dict[str, str]], parameters_body: list[str]) -> list[Body]:
+
+def read_data(parameters_body: list[str]) -> tuple[list[Body], list[float]]:
+	data = configparser.ConfigParser()
+	data.read(path_to_config)  # loading config file
+
 	bodies: list[Body] = []
+	general = data['General']
 
 	for body_name in data.keys():
 		if 'Body' not in body_name:  # Do not read the 'General' section
@@ -36,4 +42,4 @@ def read_data(data: ConfigParser | dict[str, dict[str, str]], parameters_body: l
 
 		bodies.append(Body(*params))
 
-	return bodies
+	return bodies, [float(general[key]) for key in general.keys()]
